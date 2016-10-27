@@ -17,7 +17,7 @@ if (['production', 'dev'].indexOf(env) != -1) {
 
 var config = {
     entry: path.join(__dirname, entry),
-    moduleName: 'GMP',
+    moduleName: '__console',
     format: 'umd',
     plugins: [
         commonjs(),
