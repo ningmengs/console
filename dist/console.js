@@ -34,64 +34,186 @@ var html = "<div id=\"__console\">\n    <div class=\"-c-switch\">Console</div>\n
  * @date 20161027
  */
 
-var console = function console() {
-    var this$1 = this;
-
-    this.el = this.createElement('div', {}, html);
-    document.body.appendChild(this.el);
-    this.logBox = document.querySelector('.-c-content');
-    this.toolBar = document.querySelector('.-c-toolbar');
-    this.switchBtn = document.querySelector('.-c-switch');
-    this.bindEvent();
-    ['debug', 'error', 'info', 'log', 'warn'].forEach(function (method) {
-        var original = window.console[method];
-        window.console[method] = function () {
-            var args = [], len = arguments.length;
-            while ( len-- ) args[ len ] = arguments[ len ];
-
-            this$1.pushLog(args);
-            original.apply(console, args);
-        };
-    });
+var eventsMap = function eventsMap() {
+    this.delegateEventSplitter = /^(\S+)\s*(.*)$/;
+    if (this.events) { this._bindEventMap(); }
 };
-console.prototype.createElement = function createElement (tag, attrs, content) {
-    var el = document.createElement(tag),i;
-    for (i in attrs) {
-        if (attrs.hasOwnProperty(i)) {
-            el.setAttribute(i, attrs[i]);
-        }
-    }
-    if (content) {
-        el.innerHTML = content;
-    }
-    return el;
+eventsMap.prototype.isFunction = function isFunction (obj) {
+    return Object.prototype.toString.call(obj) === '[object Function]';
 };
-console.prototype.pushLog = function pushLog (msg) {
-    var log = this.createElement('div', {
-        class: '-c-log'
-    }, JSON.stringify(msg.join(' ')).slice(1, -1));
-    this.logBox.appendChild(log);
+eventsMap.prototype.$ = function $ (selector) {
+    return document.querySelector(selector);
 };
-console.prototype.bindEvent = function bindEvent () {
+eventsMap.prototype._bindEventMap = function _bindEventMap () {
         var this$1 = this;
 
-    this.switchBtn.addEventListener('click', function () {
-        this$1.logBox.style.display = 'block';
-        this$1.toolBar.style.display = 'block';
-        this$1.switchBtn.style.display = 'none';
-    });
-    this.toolBar.addEventListener('click', function (e) {
-        var target = e.target;
-        if (target.classList.contains('-c-clear')) {
-            this$1.logBox.innerHTML = '';
-        } else if (target.classList.contains('-c-hide')) {
-            this$1.logBox.style.display = 'none';
-            this$1.toolBar.style.display = 'none';
-            this$1.switchBtn.style.display = 'block';
+    for (var key in this.events) {
+        if (this$1.events.hasOwnProperty(key)) {
+            var method = this$1.events[key];
+            if (!this$1.isFunction(method)) {
+                method = this$1[method];
+            }
+            if (!method) {
+                continue;
+            }
+            var match = key.match(this$1.delegateEventSplitter),
+                type = match[1],
+                selector = match[2];
+            this$1.$(selector).addEventListener(type, method.bind(this$1));
         }
-    });
+    }
 };
 
-new console();
+var domUtils = (function (eventsMap) {
+    function domUtils() {
+        eventsMap.call(this);
+    }
+
+    if ( eventsMap ) domUtils.__proto__ = eventsMap;
+    domUtils.prototype = Object.create( eventsMap && eventsMap.prototype );
+    domUtils.prototype.constructor = domUtils;
+    domUtils.prototype.createElement = function createElement (tag, attrs, content) {
+        var el = document.createElement(tag),
+            i;
+        for (i in attrs) {
+            if (attrs.hasOwnProperty(i)) {
+                el.setAttribute(i, attrs[i]);
+            }
+        }
+        if (content) {
+            this.html(el, content);
+        }
+        return el;
+    };
+    domUtils.prototype.show = function show () {
+        var eles = [], len = arguments.length;
+        while ( len-- ) eles[ len ] = arguments[ len ];
+
+        eles.forEach(function (ele) {
+            ele.style.display = 'block';
+        });
+        return this;
+    };
+    domUtils.prototype.hide = function hide () {
+        var eles = [], len = arguments.length;
+        while ( len-- ) eles[ len ] = arguments[ len ];
+
+        eles.forEach(function (ele) {
+            ele.style.display = 'none';
+        });
+        return this;
+    };
+    domUtils.prototype.append = function append (parent) {
+        var eles = [], len = arguments.length - 1;
+        while ( len-- > 0 ) eles[ len ] = arguments[ len + 1 ];
+
+        eles.forEach(function (ele) {
+            parent.appendChild(ele);
+        });
+        return this;
+    };
+    domUtils.prototype._put = function _put (string, type) {
+        var eles = [], len = arguments.length - 2;
+        while ( len-- > 0 ) eles[ len ] = arguments[ len + 2 ];
+
+        eles.forEach(function (ele) {
+            if (type) {
+                if (typeof ele.textContent === 'string') {
+                    ele.textContent = string;
+                } else {
+                    ele.innerText = string;
+                }
+            } else {
+                ele.innerHTML = string;
+            }
+        });
+    };
+    domUtils.prototype.html = function html$1 (eles, html$$1) {
+        this._put(html$$1, 0, eles);
+    };
+    domUtils.prototype.text = function text (eles, text) {
+        this._put(text, 1, eles);
+    };
+
+    return domUtils;
+}(eventsMap));
+
+var Base = (function (domUtils) {
+    function Base(options) {
+        var this$1 = this;
+
+        Object.assign(this, options);
+        this.render();
+        if (this.eles) {
+            for (var i in this.eles) {
+                if (this$1.eles.hasOwnProperty(i)) {
+                    this$1[i] = this$1.$(this$1.eles[i]);
+                }
+            }
+        }
+        domUtils.call(this);
+        this.init();
+        return this;
+    }
+
+    if ( domUtils ) Base.__proto__ = domUtils;
+    Base.prototype = Object.create( domUtils && domUtils.prototype );
+    Base.prototype.constructor = Base;
+    Base.prototype.render = function render () {};
+
+    return Base;
+}(domUtils));
+
+new Base({
+    init: function() {
+        this.consoleMethods = ['debug', 'error', 'info', 'log', 'warn'];
+        this.fixConsole();
+    },
+    events: {
+        'click .-c-switch': 'switchBtnClick',
+        'click .-c-toolbar': 'toolBarClick'
+    },
+    eles: {
+        logBox: '.-c-content',
+        toolBar: '.-c-toolbar',
+        switchBtn: '.-c-switch'
+    },
+    render: function() {
+        this.el = this.createElement('div', {}, html);
+        this.append(document.body, this.el);
+    },
+    fixConsole: function() {
+        var this$1 = this;
+
+        this.consoleMethods.forEach(function (method) {
+            var original = window.console[method];
+            window.console[method] = function () {
+                var args = [], len = arguments.length;
+                while ( len-- ) args[ len ] = arguments[ len ];
+
+                this$1.pushLog(args);
+                original.apply(console, args);
+            };
+        });
+    },
+    pushLog: function(msg) {
+        var log = this.createElement('div', {
+            class: '-c-log'
+        });
+        this.text(log, JSON.stringify(msg.join(' ')).slice(1, -1));
+        this.append(this.logBox, log);
+    },
+    switchBtnClick: function() {
+        this.show(this.logBox, this.toolBar).hide(this.switchBtn);
+    },
+    toolBarClick: function(e) {
+        var target = e.target;
+        if (target.classList.contains('-c-clear')) {
+            this.html(this.logBox, '');
+        } else if (target.classList.contains('-c-hide')) {
+            this.hide(this.logBox, this.toolBar).show(this.switchBtn);
+        }
+    }
+});
 
 })));
