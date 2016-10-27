@@ -1,0 +1,32 @@
+{
+  "name": "console",
+  "version": "1.0.0",
+  "description": "mobile console and elements helper",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "./node_modules/.bin/rollup --env=dev -w -m -c build/config.js",
+    "build": "node ./build/build.js --env=production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaojue/console.git"
+  },
+  "keywords": [
+    "console"
+  ],
+  "devDependencies": {
+    "minimist": "^1.2.0",
+    "uglify-js":"^2.6.4",
+    "rollup": "^0.36.3",
+    "rollup-plugin-buble": "^0.14.0",
+    "rollup-plugin-commonjs": "^5.0.5",
+    "rollup-watch": "^2.5.0"
+  },
+  "author": "xiaojue",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xiaojue/console/issues"
+  },
+  "homepage": "https://github.com/xiaojue/console#readme"
+}
