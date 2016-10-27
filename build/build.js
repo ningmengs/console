@@ -6,7 +6,6 @@ var fs = require('fs');
 var path = require('path');
 var version = require('../package.json').version;
 var uglify = require('uglify-js');
-
 var config = require('./config.js');
 
 var banner = '/*\n' +
@@ -31,7 +30,6 @@ function write(dest, code) {
         });
     });
 }
-
 
 rollup.rollup(config).then(function(bundle) {
     return bundle.generate({
