@@ -1,62 +1,63 @@
+/**
+ * @author xiaojue
+ * @author dujia
+ * @date 20161027
+ */
+
 import './css/console.css';
 import html from './template/console.html';
 
-var createElement = function(tag, attrs, content) {
-    var el = document.createElement(tag),
-        i;
-    for (i in attrs) {
-        if (attrs.hasOwnProperty(i)) {
-            el.setAttribute(i, attrs[i])
+class console {
+    constructor() {
+        this.el = this.createElement('div', {}, html);
+        document.body.appendChild(this.el);
+        this.logBox = document.querySelector('.-c-content');
+        this.toolBar = document.querySelector('.-c-toolbar');
+        this.switchBtn = document.querySelector('.-c-switch');
+        this.bindEvent();
+        ['debug', 'error', 'info', 'log', 'warn'].forEach((method) => {
+            var original = window.console[method];
+            window.console[method] = (...args) => {
+                this.pushLog(args);
+                original.apply(console, args);
+            };
+        });
+    }
+    createElement(tag, attrs, content) {
+        var el = document.createElement(tag),i;
+        for (i in attrs) {
+            if (attrs.hasOwnProperty(i)) {
+                el.setAttribute(i, attrs[i]);
+            }
         }
+        if (content) {
+            el.innerHTML = content;
+        }
+        return el;
     }
-
-    if (content) {
-        el.innerHTML = content
+    pushLog(msg) {
+        var log = this.createElement('div', {
+            class: '-c-log'
+        }, JSON.stringify(msg.join(' ')).slice(1, -1));
+        this.logBox.appendChild(log);
     }
-
-    return el
+    bindEvent() {
+        this.switchBtn.addEventListener('click', () => {
+            this.logBox.style.display = 'block';
+            this.toolBar.style.display = 'block';
+            this.switchBtn.style.display = 'none';
+        });
+        this.toolBar.addEventListener('click', (e) => {
+            var target = e.target;
+            if (target.classList.contains('-c-clear')) {
+                this.logBox.innerHTML = '';
+            } else if (target.classList.contains('-c-hide')) {
+                this.logBox.style.display = 'none';
+                this.toolBar.style.display = 'none';
+                this.switchBtn.style.display = 'block';
+            }
+        });
+    }
 }
 
-var pushLog = function(msg) {
-    var log = createElement('div', {
-        class: '-c-log'
-    }, JSON.stringify(msg.join(' ')).slice(1, -1))
-    logBox.appendChild(log)
-}
-
-var init = function() {
-    var el = createElement('div', {}, html)
-    document.body.appendChild(el)
-}
-
-init()
-
-var logBox = document.querySelector('.-c-content');
-var toolBar = document.querySelector('.-c-toolbar');
-var switchBtn = document.querySelector('.-c-switch');
-
-switchBtn.addEventListener('click', function() {
-    logBox.style.display = 'block'
-    toolBar.style.display = 'block'
-    switchBtn.style.display = 'none'
-})
-
-toolBar.addEventListener('click', function(e) {
-    var target = e.target;
-    if (target.classList.contains('-c-clear')) {
-        logBox.innerHTML = ''
-    } else if (target.classList.contains('-c-hide')) {
-        logBox.style.display = 'none'
-        toolBar.style.display = 'none'
-        switchBtn.style.display = 'block'
-    }
-})
-
-;
-['debug', 'error', 'info', 'log', 'warn'].forEach(function(method) {
-    var original = window.console[method]
-    window.console[method] = function() {
-        pushLog(Array.prototype.slice.call(arguments))
-        original.apply(console, arguments);
-    }
-})
+new console();

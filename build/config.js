@@ -22,14 +22,12 @@ var config = {
     plugins: [
         commonjs(),
         string({
-            include:['**/*.html']
-        }),
-        buble({
-            include:['.js']
+            include: ['**/*.html']
         }),
         postcss({
             extensions: ['.css']
-        })
+        }),
+        buble()
     ]
 };
 if (['production', 'dev'].indexOf(env) != -1) {

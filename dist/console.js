@@ -28,64 +28,70 @@ __$styleInject("/**\n * @fileoverview  console style\n */\n\n.-c-switch{\n    di
 
 var html = "<div id=\"__console\">\n    <div class=\"-c-switch\">Console</div>\n    <div class=\"-c-content\"></div>\n    <div class=\"-c-toolbar\">\n        <div class=\"-c-tool -c-clear\">Clear</div>\n        <div class=\"-c-tool -c-hide\">Hide</div>\n    </div>\n</div>\n";
 
-var createElement = function(tag, attrs, content) {
-    var el = document.createElement(tag),
-        i;
+/**
+ * @author xiaojue
+ * @author dujia
+ * @date 20161027
+ */
+
+var console = function console() {
+    var this$1 = this;
+
+    this.el = this.createElement('div', {}, html);
+    document.body.appendChild(this.el);
+    this.logBox = document.querySelector('.-c-content');
+    this.toolBar = document.querySelector('.-c-toolbar');
+    this.switchBtn = document.querySelector('.-c-switch');
+    this.bindEvent();
+    ['debug', 'error', 'info', 'log', 'warn'].forEach(function (method) {
+        var original = window.console[method];
+        window.console[method] = function () {
+            var args = [], len = arguments.length;
+            while ( len-- ) args[ len ] = arguments[ len ];
+
+            this$1.pushLog(args);
+            original.apply(console, args);
+        };
+    });
+};
+console.prototype.createElement = function createElement (tag, attrs, content) {
+    var el = document.createElement(tag),i;
     for (i in attrs) {
         if (attrs.hasOwnProperty(i)) {
             el.setAttribute(i, attrs[i]);
         }
     }
-
     if (content) {
         el.innerHTML = content;
     }
-
-    return el
+    return el;
 };
-
-var pushLog = function(msg) {
-    var log = createElement('div', {
+console.prototype.pushLog = function pushLog (msg) {
+    var log = this.createElement('div', {
         class: '-c-log'
     }, JSON.stringify(msg.join(' ')).slice(1, -1));
-    logBox.appendChild(log);
+    this.logBox.appendChild(log);
+};
+console.prototype.bindEvent = function bindEvent () {
+        var this$1 = this;
+
+    this.switchBtn.addEventListener('click', function () {
+        this$1.logBox.style.display = 'block';
+        this$1.toolBar.style.display = 'block';
+        this$1.switchBtn.style.display = 'none';
+    });
+    this.toolBar.addEventListener('click', function (e) {
+        var target = e.target;
+        if (target.classList.contains('-c-clear')) {
+            this$1.logBox.innerHTML = '';
+        } else if (target.classList.contains('-c-hide')) {
+            this$1.logBox.style.display = 'none';
+            this$1.toolBar.style.display = 'none';
+            this$1.switchBtn.style.display = 'block';
+        }
+    });
 };
 
-var init = function() {
-    var el = createElement('div', {}, html);
-    document.body.appendChild(el);
-};
-
-init();
-
-var logBox = document.querySelector('.-c-content');
-var toolBar = document.querySelector('.-c-toolbar');
-var switchBtn = document.querySelector('.-c-switch');
-
-switchBtn.addEventListener('click', function() {
-    logBox.style.display = 'block';
-    toolBar.style.display = 'block';
-    switchBtn.style.display = 'none';
-});
-
-toolBar.addEventListener('click', function(e) {
-    var target = e.target;
-    if (target.classList.contains('-c-clear')) {
-        logBox.innerHTML = '';
-    } else if (target.classList.contains('-c-hide')) {
-        logBox.style.display = 'none';
-        toolBar.style.display = 'none';
-        switchBtn.style.display = 'block';
-    }
-})
-
-;
-['debug', 'error', 'info', 'log', 'warn'].forEach(function(method) {
-    var original = window.console[method];
-    window.console[method] = function() {
-        pushLog(Array.prototype.slice.call(arguments));
-        original.apply(console, arguments);
-    };
-});
+new console();
 
 })));
