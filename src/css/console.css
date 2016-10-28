@@ -17,7 +17,7 @@
     background-color: #04be02;
 }
 
-.-c-content{
+.-c-content,.-c-eles{
     display: none;
     position: fixed;
     left: 0;
@@ -30,6 +30,8 @@
     max-height: 50%;
     background-color: #fff;
     -webkit-overflow-scrolling: touch;
+    border-top:1px solid #d9d9d9;
+    opacity:0.5;
 }
 
 .-c-log{
@@ -41,15 +43,21 @@
     word-break: break-word;
 }
 
-.-c-toolbar{
+.-c-toolbar,.-c-tab{
     display: none;
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
+    height:40px;
     z-index: 2147483647;
     line-height: 40px;
     background-color: #fff;
+    opacity:0.5;
+}
+
+.-c-tab{
+    top:0px;
 }
 
 .-c-tool{
@@ -61,11 +69,15 @@
     color: #000;
 }
 
-.-c-clear::before{
+.-c-clear::before,.-c-console::before{
     content: "";
     position: absolute;
     top: 7px;
     bottom: 7px;
     right: 0;
     border-left: 1px solid #d9d9d9;
+}
+
+.-c-current{
+    color:#04be02;
 }
