@@ -69,7 +69,7 @@
     color: #000;
 }
 
-.-c-clear::before,.-c-console::before{
+.-c-clear::before,.-c-console::before,.-c-refresh::before{
     content: "";
     position: absolute;
     top: 7px;
@@ -80,4 +80,22 @@
 
 .-c-current{
     color:#04be02;
+}
+
+.-c-eles div{
+    font-size:12px;
+    color:#990884;
+    margin:5px;
+}
+.-c-eles span{
+    color:#444;
+}
+.-c-eles span.val{
+    color:#1f6b7a;
+}
+.-c-eles span.key{
+    color:#900b09;
+}
+.-c-eles .-c-omit{
+    display:none;
 }

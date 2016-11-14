@@ -16,20 +16,23 @@ Object.assign(Base.prototype, Elements);
 
 new Base({
     init() {
-        this.consoleMethods = ['debug', 'error', 'info', 'log', 'warn'];
+        this.consoleMethods = ['debug', 'error', 'info', 'warn'];
+        this.elesInit = false;
         this.fixConsole();
     },
     events: {
         'click .-c-switch': 'switchBtnClick',
         'click .-c-clear': 'clearClick',
-        'click .-c-hide': 'hideClick',
+        'click .-c-consoleBar .-c-hide': 'hideClick',
+        'click .-c-eleBar .-c-hide': 'hideClick',
         'click .-c-elements': 'elementsClick',
         'click .-c-console': 'consoleClick'
     },
     eles: {
         elesBox: '.-c-eles',
         logBox: '.-c-content',
-        toolBar: '.-c-toolbar',
+        consoletoolBar: '.-c-consoleBar',
+        elestoolBar: '.-c-eleBar',
         switchBtn: '.-c-switch',
         tab: '.-c-tab',
         elesTab: '.-c-elements',
@@ -47,20 +50,24 @@ new Base({
         this.append(this.logBox, log);
     },
     switchBtnClick() {
-        this.show(this.logBox, this.toolBar, this.tab).hide(this.switchBtn);
+        this.show(this.logBox,this.elesBox, this.consoletoolBar,this.elestoolBar, this.tab).hide(this.switchBtn,this.elestoolBar);
     },
     clearClick() {
         this.html(this.logBox, '');
     },
     hideClick() {
-        this.hide(this.logBox, this.toolBar, this.tab).show(this.switchBtn);
+        this.hide(this.logBox,this.elesBox, this.consoletoolBar,this.elestoolBar, this.tab).show(this.switchBtn);
+        this.addClass('-c-current', this.consoleTab).removeClass('-c-current', this.elesTab);
     },
     elementsClick() {
-        this.hide(this.logBox, this.toolBar).show(this.elesBox);
+        this.hide(this.logBox, this.consoletoolBar).show(this.elesBox,this.elestoolBar);
         this.addClass('-c-current', this.elesTab).removeClass('-c-current', this.consoleTab);
+        if(this.elesInit) return;
+        this.elesInit = true;
+        this.createDomTree(this.elesBox);
     },
     consoleClick() {
-        this.hide(this.elesBox).show(this.logBox, this.toolBar);
+        this.hide(this.elesBox,this.elestoolBar).show(this.logBox, this.consoletoolBar);
         this.addClass('-c-current', this.consoleTab).removeClass('-c-current', this.elesTab);
     }
 });

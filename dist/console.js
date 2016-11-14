@@ -20,9 +20,9 @@ function __$styleInject(css, returnValue) {
   head.appendChild(style);
   return returnValue;
 }
-__$styleInject("/**\n * @fileoverview  console style\n */\n\n.-c-switch{\n    display: block;\n    position: fixed;\n    right: 10px;\n    bottom: 10px;\n    z-index: 2147483647;\n    border-radius: 4px;\n    box-shadow: 0 0 8px rgba( 0, 0, 0, .4);\n    padding: 8px 16px;\n    line-height: 1;\n    font-size: 14px;\n    color: #fff;\n    background-color: #04be02;\n}\n\n.-c-content,.-c-eles{\n    display: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    bottom: 40px;\n    z-index: 2147483647;\n    border-top: 1px solid #eee;\n    overflow-x: hidden;\n    overflow-y: auto;\n    max-height: 50%;\n    background-color: #fff;\n    -webkit-overflow-scrolling: touch;\n    border-top:1px solid #d9d9d9;\n    opacity:0.5;\n}\n\n.-c-log{\n    margin: 0;\n    border-bottom: 1px solid #eee;\n    padding: 6px 8px;\n    overflow: hidden;\n    line-height: 1.3;\n    word-break: break-word;\n}\n\n.-c-toolbar,.-c-tab{\n    display: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    height:40px;\n    z-index: 2147483647;\n    line-height: 40px;\n    background-color: #fff;\n    opacity:0.5;\n}\n\n.-c-tab{\n    top:0px;\n}\n\n.-c-tool{\n    position: relative;\n    float: left;\n    width: 50%;\n    text-align: center;\n    text-decoration: none;\n    color: #000;\n}\n\n.-c-clear::before,.-c-console::before{\n    content: \"\";\n    position: absolute;\n    top: 7px;\n    bottom: 7px;\n    right: 0;\n    border-left: 1px solid #d9d9d9;\n}\n\n.-c-current{\n    color:#04be02;\n}\n",undefined);
+__$styleInject("/**\n * @fileoverview  console style\n */\n\n.-c-switch{\n    display: block;\n    position: fixed;\n    right: 10px;\n    bottom: 10px;\n    z-index: 2147483647;\n    border-radius: 4px;\n    box-shadow: 0 0 8px rgba( 0, 0, 0, .4);\n    padding: 8px 16px;\n    line-height: 1;\n    font-size: 14px;\n    color: #fff;\n    background-color: #04be02;\n}\n\n.-c-content,.-c-eles{\n    display: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    bottom: 40px;\n    z-index: 2147483647;\n    border-top: 1px solid #eee;\n    overflow-x: hidden;\n    overflow-y: auto;\n    max-height: 50%;\n    background-color: #fff;\n    -webkit-overflow-scrolling: touch;\n    border-top:1px solid #d9d9d9;\n    opacity:0.5;\n}\n\n.-c-log{\n    margin: 0;\n    border-bottom: 1px solid #eee;\n    padding: 6px 8px;\n    overflow: hidden;\n    line-height: 1.3;\n    word-break: break-word;\n}\n\n.-c-toolbar,.-c-tab{\n    display: none;\n    position: fixed;\n    left: 0;\n    right: 0;\n    bottom: 0;\n    height:40px;\n    z-index: 2147483647;\n    line-height: 40px;\n    background-color: #fff;\n    opacity:0.5;\n}\n\n.-c-tab{\n    top:0px;\n}\n\n.-c-tool{\n    position: relative;\n    float: left;\n    width: 50%;\n    text-align: center;\n    text-decoration: none;\n    color: #000;\n}\n\n.-c-clear::before,.-c-console::before,.-c-refresh::before{\n    content: \"\";\n    position: absolute;\n    top: 7px;\n    bottom: 7px;\n    right: 0;\n    border-left: 1px solid #d9d9d9;\n}\n\n.-c-current{\n    color:#04be02;\n}\n\n.-c-eles div{\n    font-size:12px;\n    color:#990884;\n    margin:5px;\n}\n.-c-eles span{\n    color:#444;\n}\n.-c-eles span.val{\n    color:#1f6b7a;\n}\n.-c-eles span.key{\n    color:#900b09;\n}\n.-c-eles .-c-omit{\n    display:none;\n}\n",undefined);
 
-var html = "<div id=\"__console\">\n    <div class=\"-c-switch\">Console</div>\n    <div class=\"-c-content\"></div>\n    <div class=\"-c-eles\"></div>\n    <div class=\"-c-toolbar\">\n        <div class=\"-c-tool -c-clear\">Clear</div>\n        <div class=\"-c-tool -c-hide\">Hide</div>\n    </div>\n    <div class=\"-c-tab\">\n        <div class=\"-c-tool -c-console -c-current\">Console</div>\n        <div class=\"-c-tool -c-elements\">Elemenets</div>\n    </div>\n</div>\n";
+var html = "<div id=\"__console\">\n    <div class=\"-c-switch\">Console</div>\n    <div class=\"-c-content\"></div>\n    <div class=\"-c-eles\"></div>\n    <div class=\"-c-toolbar -c-consoleBar\">\n        <div class=\"-c-tool -c-clear\">Clear</div>\n        <div class=\"-c-tool -c-hide\">Hide</div>\n    </div>\n    <div class=\"-c-toolbar -c-eleBar\">\n        <div class=\"-c-tool -c-refresh\">Refresh</div>\n        <div class=\"-c-tool -c-hide\">Hide</div>\n    </div>\n    <div class=\"-c-tab\">\n        <div class=\"-c-tool -c-console -c-current\">Console</div>\n        <div class=\"-c-tool -c-elements\">Elemenets</div>\n    </div>\n</div>\n";
 
 /**
  * @author xiaojue
@@ -214,10 +214,77 @@ var Console = {
 
 var Elements = {
     refresh: function refresh() {
+
     },
-    getAllEles: function getAllEles() {
+    createDomTree: function createDomTree(wrap) {
+        var arr = this._recursionNode(document, []);
+        wrap.innerHTML = arr.join('');
+        this._bindEvent(wrap);
+        this._eachOmit(wrap.querySelectorAll('.-c-omit'));
     },
-    createDomTree: function createDomTree(){
+    _toggleDiv: function _toggleDiv(e) {
+        var target = e.target;
+        if (target.nodeType === 1 && target.tagName.toLowerCase() === 'div') {
+            for (var i = 0; i < target.childNodes.length; i++) {
+                var item = target.childNodes[i];
+                if (item.nodeType === 1 && item.tagName.toLowerCase() === 'div') {
+                    item.style.display = item.style.display === "block" ? 'none' : 'block';
+                }
+            }
+            //定位
+            this._eachOmit(target.querySelectorAll('.-c-omit'));
+        }
+    },
+    _eachOmit: function _eachOmit(eles){
+        eles.forEach(function (ele){
+            var nextTag = ele.nextSibling;
+            while(nextTag === null){
+               if(nextTag.nodeType === 1) { break; }
+               nextTag = ele.nextSibling;  
+            }
+            if(nextTag){
+                console.log(nextTag);
+                if(nextTag.nodeType === 1 && nextTag.tagName === 'DIV'){
+                    ele.style.display = nextTag.style.display === 'block' ? 'none' : 'inline';
+                }else{
+                    ele.style.display = 'none';
+                }
+            }
+        });
+    },
+    _bindEvent: function _bindEvent(wrap) {
+        wrap.addEventListener('click', this._toggleDiv.bind(this));
+    },
+    _unbindEvent: function _unbindEvent(wrap) {
+        wrap.removeEventListener('click', this._toggleDiv.bind(this));
+    },
+    _recursionNode: function _recursionNode(node, ret) {
+        var this$1 = this;
+
+        var marginL = 0,step = 10;
+        if (node.childNodes.length) {
+            if(node.tagName) { ret.push('<span class="-c-omit" style="display:none;">...</span>'); }
+            marginL += step;
+            for (var i = 0; i < node.childNodes.length; i++) {
+                var item = node.childNodes[i];
+                if (item.nodeType === 3 && item.nodeValue.trim()  !== '') {
+                    ret.push('<span>'+item.nodeValue.trim()+'</span>');
+                }
+                if (node.childNodes[i].nodeType === 1) {
+                    var tagName = item.tagName.toLowerCase();
+                    var isShow = (tagName === 'html' || tagName === 'head' || tagName === 'body') ? 'block' : 'none';
+                    var attributes = '';
+                    Object.keys(item.attributes).forEach(function (name) {
+                        var attr = item.attributes[name];
+                        attributes += '<span class="key">'+attr.name + '</span>="<span class="val">' + attr.textContent + '</span>" ';
+                    });
+                    ret.push('<div style="display:' + isShow + ';margin-left:'+marginL+'px;">&lt;' + tagName + ' ' +attributes + '&gt;');
+                    this$1._recursionNode(node.childNodes[i], ret);
+                    ret.push('&lt;/' + tagName + '&gt;</div>');
+                }
+            }
+        }
+        return ret;
     }
 };
 
@@ -232,20 +299,23 @@ Object.assign(Base.prototype, Elements);
 
 new Base({
     init: function init() {
-        this.consoleMethods = ['debug', 'error', 'info', 'log', 'warn'];
+        this.consoleMethods = ['debug', 'error', 'info', 'warn'];
+        this.elesInit = false;
         this.fixConsole();
     },
     events: {
         'click .-c-switch': 'switchBtnClick',
         'click .-c-clear': 'clearClick',
-        'click .-c-hide': 'hideClick',
+        'click .-c-consoleBar .-c-hide': 'hideClick',
+        'click .-c-eleBar .-c-hide': 'hideClick',
         'click .-c-elements': 'elementsClick',
         'click .-c-console': 'consoleClick'
     },
     eles: {
         elesBox: '.-c-eles',
         logBox: '.-c-content',
-        toolBar: '.-c-toolbar',
+        consoletoolBar: '.-c-consoleBar',
+        elestoolBar: '.-c-eleBar',
         switchBtn: '.-c-switch',
         tab: '.-c-tab',
         elesTab: '.-c-elements',
@@ -263,20 +333,24 @@ new Base({
         this.append(this.logBox, log);
     },
     switchBtnClick: function switchBtnClick() {
-        this.show(this.logBox, this.toolBar, this.tab).hide(this.switchBtn);
+        this.show(this.logBox,this.elesBox, this.consoletoolBar,this.elestoolBar, this.tab).hide(this.switchBtn,this.elestoolBar);
     },
     clearClick: function clearClick() {
         this.html(this.logBox, '');
     },
     hideClick: function hideClick() {
-        this.hide(this.logBox, this.toolBar, this.tab).show(this.switchBtn);
+        this.hide(this.logBox,this.elesBox, this.consoletoolBar,this.elestoolBar, this.tab).show(this.switchBtn);
+        this.addClass('-c-current', this.consoleTab).removeClass('-c-current', this.elesTab);
     },
     elementsClick: function elementsClick() {
-        this.hide(this.logBox, this.toolBar).show(this.elesBox);
+        this.hide(this.logBox, this.consoletoolBar).show(this.elesBox,this.elestoolBar);
         this.addClass('-c-current', this.elesTab).removeClass('-c-current', this.consoleTab);
+        if(this.elesInit) { return; }
+        this.elesInit = true;
+        this.createDomTree(this.elesBox);
     },
     consoleClick: function consoleClick() {
-        this.hide(this.elesBox).show(this.logBox, this.toolBar);
+        this.hide(this.elesBox,this.elestoolBar).show(this.logBox, this.consoletoolBar);
         this.addClass('-c-current', this.consoleTab).removeClass('-c-current', this.elesTab);
     }
 });
