@@ -26,7 +26,10 @@ new Base({
         'click .-c-consoleBar .-c-hide': 'hideClick',
         'click .-c-eleBar .-c-hide': 'hideClick',
         'click .-c-elements': 'elementsClick',
-        'click .-c-console': 'consoleClick'
+        'click .-c-refresh': 'refresh',
+        'click .-c-console': 'consoleClick',
+        'click .-c-save': 'saveStyle',
+        'click .-c-cancel':'cancel'
     },
     eles: {
         elesBox: '.-c-eles',
@@ -36,10 +39,11 @@ new Base({
         switchBtn: '.-c-switch',
         tab: '.-c-tab',
         elesTab: '.-c-elements',
+        dialog:'.-c-dialog',
         consoleTab: '.-c-console'
     },
     render() {
-        this.el = this.createElement('div', {}, html);
+        this.el = this.createElement('div', {id:'__console_wrap'}, html);
         this.append(document.body, this.el);
     },
     pushLog(msg) {
@@ -48,6 +52,12 @@ new Base({
         });
         this.text(log, JSON.stringify(msg.join(' ')).slice(1, -1));
         this.append(this.logBox, log);
+    },
+    cancel(){
+       this.dialog.close(); 
+    },
+    saveStyle(){
+       this.changeStyle();
     },
     switchBtnClick() {
         this.show(this.logBox,this.elesBox, this.consoletoolBar,this.elestoolBar, this.tab).hide(this.switchBtn,this.elestoolBar);
@@ -69,5 +79,8 @@ new Base({
     consoleClick() {
         this.hide(this.elesBox,this.elestoolBar).show(this.logBox, this.consoletoolBar);
         this.addClass('-c-current', this.consoleTab).removeClass('-c-current', this.elesTab);
+    },
+    refresh(){
+        this.refreshDomTree(this.elesBox);
     }
 });

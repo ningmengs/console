@@ -3,15 +3,94 @@
  * @date 20161028
  */
 
-var Elements = {
-    refresh() {
+var uuid = 0;
 
+var _eventHandlers = {};
+
+var longtimeout;
+
+
+var Elements = {
+    refreshDomTree(wrap) {
+        var arr = this._recursionNode(document, []);
+        this.removeAllListeners(wrap,'click');  
+        this.removeAllListeners(wrap,'touchstart'); 
+        this.removeAllListeners(wrap,'touchend');   
+        wrap.innerHTML = arr.join('');
+        this.addListener(wrap,'touchstart',this._touchStart.bind(this),false);
+        this.addListener(wrap,'touchend',this._touchEnd.bind(this),false);
+        this.addListener(wrap,'click',this._toggleDiv.bind(this),false);
+        this._eachOmit(wrap.querySelectorAll('.-c-omit'));
     },
     createDomTree(wrap) {
         var arr = this._recursionNode(document, []);
         wrap.innerHTML = arr.join('');
-        this._bindEvent(wrap);
+        this.addListener(wrap,'click',this._toggleDiv.bind(this),false);
+        this.addListener(wrap,'touchstart',this._touchStart.bind(this),false);
+        this.addListener(wrap,'touchend',this._touchEnd.bind(this),false);
         this._eachOmit(wrap.querySelectorAll('.-c-omit'));
+    },
+	changeStyle(){
+		
+	},
+    longPress(e){
+        this._showStyle(e); 
+    },
+    _touchStart(e){
+        longtimeout = setTimeout(()=>{
+            this.longPress(e); 
+        },800); 
+    },
+    _touchEnd(){
+        clearTimeout(longtimeout);
+    },
+	css(a) {
+		var sheets = document.styleSheets, o = [];
+		a.matches = a.matches || a.webkitMatchesSelector || a.mozMatchesSelector || a.msMatchesSelector || a.oMatchesSelector;
+		for (var i in sheets) {
+			if(sheets.hasOwnProperty(i)){
+				var rules = sheets[i].rules || sheets[i].cssRules;
+				for (var r in rules) {
+					if (a.matches(rules[r].selectorText)) {
+						o.push(rules[r].cssText);
+					}
+				}
+			}
+		}
+		return o;
+	},
+    _showStyle(e){
+        var target = e.target;
+        if (target.nodeType === 1 && target.tagName.toLowerCase() === 'div') {
+            var c_uuid = target.getAttribute('data-uuid');
+            var nodeTarget = document.querySelector('[console_uuid="'+c_uuid+'"]');
+            var style = this.css(nodeTarget);
+			var dialog = document.querySelector('.-c-dialog');
+			dialog.querySelector('.__console_currentStyle').value = style.join('\r\n');
+			dialog.querySelector('.__console_currentStyle').setAttribute('data-uuid',c_uuid); 
+			dialog.querySelector('.-c-elepath').innerText = target.innerText;
+			dialog.show();
+        }
+    },
+    _showBorder(target){
+        var fillterTag = ['html','head','title','meta','body','script','style'];
+        if(fillterTag.indexOf(target.tagName.toLocaleLowerCase()) > -1) return;
+        target.style['-webkit-animation'] = 'twinkling .5s infinite ease-in-out';
+        setTimeout(function(){
+            target.style['-webkit-animation'] = '';
+        },500);
+        this._setTargetY(target);
+    },
+    _setTargetY(node){
+        var curtop = 0;
+        var curtopscroll = 0;
+        if (node.offsetParent) {
+            do {
+                curtop += node.offsetTop;
+                curtopscroll += node.offsetParent ? node.offsetParent.scrollTop : 0;
+            } while ((node = node.offsetParent));
+        }   
+        window.scrollTop = (curtop - curtopscroll);
     },
     _toggleDiv(e) {
         var target = e.target;
@@ -23,6 +102,9 @@ var Elements = {
                 }
             }
             //定位
+            var c_uuid = target.getAttribute('data-uuid');
+            var nodeTarget = document.querySelector('[console_uuid="'+c_uuid+'"]');
+            this._showBorder(nodeTarget);
             this._eachOmit(target.querySelectorAll('.-c-omit'));
         }
     },
@@ -34,7 +116,6 @@ var Elements = {
                nextTag = ele.nextSibling;  
             }
             if(nextTag){
-                console.log(nextTag);
                 if(nextTag.nodeType === 1 && nextTag.tagName === 'DIV'){
                     ele.style.display = nextTag.style.display === 'block' ? 'none' : 'inline';
                 }else{
@@ -43,11 +124,30 @@ var Elements = {
             }
         });
     },
-    _bindEvent(wrap) {
-        wrap.addEventListener('click', this._toggleDiv.bind(this));
+    addListener(node, event, handler, capture) {
+       if(!(node in _eventHandlers)) {
+           // _eventHandlers stores references to nodes
+           _eventHandlers[node] = {};
+       }
+       if(!(event in _eventHandlers[node])) {
+           // each entry contains another entry for each event type
+           _eventHandlers[node][event] = [];
+       }
+       // capture reference
+       _eventHandlers[node][event].push([handler, capture]);
+       node.addEventListener(event, handler, capture);
     },
-    _unbindEvent(wrap) {
-        wrap.removeEventListener('click', this._toggleDiv.bind(this));
+    removeAllListeners(node, event) {
+        if(node in _eventHandlers) {
+            var handlers = _eventHandlers[node];
+            if(event in handlers) {
+                var eventHandlers = handlers[event];
+                for(var i = eventHandlers.length; i--;) {
+                    var handler = eventHandlers[i];
+                    node.removeEventListener(event, handler[0], handler[1]);
+                }
+            }
+        }
     },
     _recursionNode(node, ret) {
         var marginL = 0,step = 10;
@@ -59,16 +159,21 @@ var Elements = {
                 if (item.nodeType === 3 && item.nodeValue.trim()  !== '') {
                     ret.push('<span>'+item.nodeValue.trim()+'</span>');
                 }
-                if (node.childNodes[i].nodeType === 1) {
+                if (item.nodeType === 1) {
                     var tagName = item.tagName.toLowerCase();
+                    if(item.id === '__console_wrap') continue;
                     var isShow = (tagName === 'html' || tagName === 'head' || tagName === 'body') ? 'block' : 'none';
                     var attributes = '';
+                    item.setAttribute('console_uuid',uuid);
                     Object.keys(item.attributes).forEach((name) => {
                         var attr = item.attributes[name];
-                        attributes += '<span class="key">'+attr.name + '</span>="<span class="val">' + attr.textContent + '</span>" ';
+                        if(attr.name !== 'console_uuid'){
+                            attributes += '<span class="key">'+attr.name + '</span>="<span class="val">' + attr.textContent + '</span>" ';
+                        }
                     });
-                    ret.push('<div style="display:' + isShow + ';margin-left:'+marginL+'px;">&lt;' + tagName + ' ' +attributes + '&gt;');
-                    this._recursionNode(node.childNodes[i], ret);
+                    ret.push('<div data-uuid="'+uuid+'" style="display:' + isShow + ';margin-left:'+marginL+'px;">&lt;' + tagName + ' ' +attributes + '&gt;');
+                    uuid++;
+                    this._recursionNode(item, ret);
                     ret.push('&lt;/' + tagName + '&gt;</div>');
                 }
             }
