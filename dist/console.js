@@ -406,7 +406,7 @@ Object.assign(Base.prototype, Elements);
 
 new Base({
     init: function init() {
-        this.consoleMethods = ['debug', 'error', 'info', 'warn'];
+        this.consoleMethods = ['debug', 'error', 'info', 'warn','log'];
         this.elesInit = false;
         this.fixConsole();
     },
