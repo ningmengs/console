@@ -120,6 +120,8 @@
     position:absolute;
     top:0px;
     z-index:99999;
+    left:50%;
+    margin-left:-40%;
 }
 .-c-dialog .textareaParent{
     position:relative;
