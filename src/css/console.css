@@ -31,7 +31,7 @@
     background-color: #cbf3ff;
     -webkit-overflow-scrolling: touch;
     border-top:1px solid #d9d9d9;
-    opacity:1;
+    opacity:.7;
 }
 
 .-c-log{
@@ -53,7 +53,7 @@
     z-index: 2147483647;
     line-height: 40px;
     background-color: #cbf3ff;
-    opacity:1;
+    opacity:.7;
 }
 
 .-c-tab{
@@ -112,17 +112,34 @@
 
 .-c-dialog {
     width:80%;
-    height:180px;
+    height:auto;
     border:#ccc solid 1px;
     margin-top:20%;
     background:#eee;
+}
+.-c-dialog .textareaParent{
+    position:relative;
+}
+.-c-dialog .textareaParent pre{
+	display:block;
+    visibility:hidden; 
+	margin:0;
+	white-space: pre-wrap; 
+    word-wrap: break-word; 
+}
+.-c-dialog .textareaParent pre span{
+    font-size:12px; 
+	display:block;
 }
 .-c-dialog textarea{
     outline:none;
     resize:none;
     border:none;
+    left:0px;
+    top:0px;
+    position:absolute;
     width:100%;
-    height:80%;
+    height:100%;
     font-size:12px; 
 }
 .-c-dialog .-c-elepath{
