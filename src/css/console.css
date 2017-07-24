@@ -117,6 +117,9 @@
     border:#ccc solid 1px;
     margin-top:20%;
     background:#eee;
+    position:absolute;
+    top:0px;
+    z-index:99999;
 }
 .-c-dialog .textareaParent{
     position:relative;
