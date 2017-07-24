@@ -1,7 +1,10 @@
 /**
  * @fileoverview  console style
  */
-
+#__console_wrap {
+    font-size:12px;
+    font-family: "Microsoft YaHei",Arial,"Helvetica";
+}
 .-c-switch{
     display: block;
     position: fixed;
@@ -12,7 +15,6 @@
     box-shadow: 0 0 8px rgba( 0, 0, 0, .4);
     padding: 8px 16px;
     line-height: 1;
-    font-size: 14px;
     color: #fff;
     background-color: #0088cc;
 }
@@ -31,7 +33,7 @@
     background-color: #cbf3ff;
     -webkit-overflow-scrolling: touch;
     border-top:1px solid #d9d9d9;
-    opacity:.7;
+    opacity:.9;
 }
 
 .-c-log{
@@ -53,7 +55,7 @@
     z-index: 2147483647;
     line-height: 40px;
     background-color: #cbf3ff;
-    opacity:.7;
+    opacity:.9;
 }
 
 .-c-tab{
@@ -83,7 +85,6 @@
 }
 
 .-c-eles div{
-    font-size:12px;
     color:#990884;
     margin:5px;
 }
@@ -121,15 +122,14 @@
     position:relative;
 }
 .-c-dialog .textareaParent pre{
-	display:block;
+    display:block;
     visibility:hidden; 
-	margin:0;
-	white-space: pre-wrap; 
+    margin:0;
+    white-space: pre-wrap; 
     word-wrap: break-word; 
 }
 .-c-dialog .textareaParent pre span{
-    font-size:12px; 
-	display:block;
+    display:block;
 }
 .-c-dialog textarea{
     outline:none;
@@ -140,9 +140,7 @@
     position:absolute;
     width:100%;
     height:100%;
-    font-size:12px; 
 }
 .-c-dialog .-c-elepath{
-    font-size:12px;
     color:green;
 }
