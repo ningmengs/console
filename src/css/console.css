@@ -14,7 +14,7 @@
     line-height: 1;
     font-size: 14px;
     color: #fff;
-    background-color: #04be02;
+    background-color: #0088cc;
 }
 
 .-c-content,.-c-eles{
@@ -28,10 +28,10 @@
     overflow-x: hidden;
     overflow-y: auto;
     max-height: 50%;
-    background-color: #fff;
+    background-color: #cbf3ff;
     -webkit-overflow-scrolling: touch;
     border-top:1px solid #d9d9d9;
-    opacity:0.5;
+    opacity:1;
 }
 
 .-c-log{
@@ -52,8 +52,8 @@
     height:40px;
     z-index: 2147483647;
     line-height: 40px;
-    background-color: #fff;
-    opacity:0.5;
+    background-color: #cbf3ff;
+    opacity:1;
 }
 
 .-c-tab{
@@ -79,7 +79,7 @@
 }
 
 .-c-current{
-    color:#04be02;
+    color:#0088cc;
 }
 
 .-c-eles div{
