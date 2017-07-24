@@ -36,15 +36,15 @@ var Elements = {
             try {
                 style= JSON.parse(dialog.querySelector('.__console_currentStyle').value);
             } catch (e) {
-                alert('rewrite style must be standard JSON object string');
+                console.error('rewrite style must be standard JSON object string');
                 return;
             }
             var c_uuid = dialog.querySelector('.__console_currentStyle').getAttribute('data-uuid');
             var nodeTarget = document.querySelector('[console_uuid="' + c_uuid + '"]');
-			var sheetText = style.sheets.join().replace(/(\}.*?\{)/g,"").replace(/(.*?\{)/g,"").replace(/(\}$)/,"");
+            var sheetText = style.sheets.join().replace(/(\}.*?\{)/g,"").replace(/(.*?\{)/g,"").replace(/(\}$)/,"");
             nodeTarget.style.cssText = style.cssText + sheetText;
-			dialog.close();
-			this.refresh();
+            dialog.close();
+            this.refresh();
         },
         longPress(e) {
             this._showStyle(e);
